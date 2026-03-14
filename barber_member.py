@@ -129,6 +129,25 @@ class MemberManager:
         print(f"会员删除成功！ID: {member.id}, 姓名: {member.name}")
         return True
 
+    def update_member(self, member_id, name=None, phone=None):
+        member = self.get_member(member_id)
+        if not member:
+            print(f"错误：会员ID {member_id} 不存在！")
+            return False
+        if phone and phone != member.phone:
+            for m in self.members.values():
+                if m.phone == phone:
+                    print(f"错误：电话 {phone} 已注册！")
+                    return False
+        if name:
+            member.name = name
+        if phone:
+            member.phone = phone
+        self.save()
+        print(f"会员信息修改成功！")
+        print(f"ID: {member.id}, 姓名: {member.name}, 电话: {member.phone}")
+        return True
+
     def count_members(self):
         return len(self.members)
 
@@ -141,8 +160,9 @@ def print_menu():
     print("2. 会员充值")
     print("3. 会员消费")
     print("4. 查询会员信息")
-    print("5. 显示所有会员")
-    print("6. 删除会员")
+    print("5. 修改会员信息")
+    print("6. 显示所有会员")
+    print("7. 删除会员")
     print("0. 退出系统")
     print("="*40)
 
@@ -200,9 +220,27 @@ def main():
                     print("错误：请输入有效的数字！")
 
             elif choice == "5":
-                manager.list_all_members()
+                try:
+                    mid = int(input("请输入会员ID: "))
+                    member = manager.get_member(mid)
+                    if member:
+                        print(f"\n当前信息: ID:{member.id}, 姓名:{member.name}, 电话:{member.phone}")
+                        print("(直接回车表示不修改)")
+                        name = input("请输入新姓名: ").strip()
+                        phone = input("请输入新电话: ").strip()
+                        if name or phone:
+                            manager.update_member(mid, name if name else None, phone if phone else None)
+                        else:
+                            print("未修改任何信息")
+                    else:
+                        print(f"错误：会员ID {mid} 不存在！")
+                except ValueError:
+                    print("错误：请输入有效的数字！")
 
             elif choice == "6":
+                manager.list_all_members()
+
+            elif choice == "7":
                 try:
                     mid = int(input("请输入要删除的会员ID: "))
                     manager.delete_member(mid)
@@ -210,7 +248,7 @@ def main():
                     print("错误：请输入有效的数字！")
 
             else:
-                print("错误：无效的选择，请输入0-6之间的数字！")
+                print("错误：无效的选择，请输入0-7之间的数字！")
 
         except KeyboardInterrupt:
             print("\n\n感谢使用，再见！")
